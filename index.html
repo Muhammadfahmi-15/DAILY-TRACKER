@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="description" content="Tracker jadwal dan progress belajar harian.">
+  <title>Ruang Fokus — Tracker Belajar</title>
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Ruang%20Fokus%20%E2%80%94%20Tracker%20Belajar%22%2C%22short_name%22%3A%22Ruang%20Fokus%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f7f7fb%22%2C%22theme_color%22%3A%22%234f46e5%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%2Fsvg%2527%2520viewBox%253D%25270%25200%252096%252096%2527%253E%253Crect%2520width%253D%252796%2527%2520height%253D%252796%2527%2520rx%253D%252722%2527%2520fill%253D%2527%25234f46e5%2527%252F%253E%253Cpath%2520d%253D%2527M25%252050l15%252015%252031-35%2527%2520fill%253D%2527none%2527%2520stroke%253D%2527white%2527%2520stroke-width%253D%252710%2527%2520stroke-linecap%253D%2527round%2527%2520stroke-linejoin%253D%2527round%2527%252F%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%2296x96%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <style>
+    :root {
+      color-scheme: light;
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-soft: #eef2ff;
+      --ink: #191a2b;
+      --muted: #77798e;
+      --line: #ececf3;
+      --surface: #fff;
+      --bg: #f7f7fb;
+      --green: #16865c;
+      --shadow: 0 12px 34px rgba(31, 32, 57, .06);
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app { max-width: 1040px; margin: 0 auto; padding: 26px 22px 54px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 28px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px;
+      color: #fff; background: var(--primary); box-shadow: 0 7px 16px #4f46e540;
+    }
+    .brand-mark svg { width: 23px; height: 23px; }
+    .brand-name { font-size: 17px; font-weight: 750; letter-spacing: -.4px; }
+    .brand-sub { display: block; margin-top: -3px; color: var(--muted); font-size: 12px; font-weight: 450; }
+    .account-card { margin: -8px 0 22px; padding: 17px 19px; }
+    .account-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .account-title { font-size: 13px; font-weight: 750; }
+    .account-status { color: var(--muted); font-size: 12px; }
+    .account-setup { display: grid; grid-template-columns: 1fr 1fr auto; gap: 9px; margin-top: 12px; }
+    .account-form { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 9px; margin-top: 12px; }
+    .account-input { min-width: 0; width: 100%; min-height: 39px; border: 1px solid var(--line); border-radius: 9px; outline: none; padding: 8px 10px; background: #fcfcfe; color: var(--ink); font-size: 13px; }
+    .account-input:focus { border-color: #a5a0fa; box-shadow: 0 0 0 3px #4f46e514; }
+    .account-hint { margin: 9px 0 0; color: var(--muted); font-size: 11px; }
+    .account-card .secondary-btn, .account-card .primary-btn { padding: 8px 12px; font-size: 12px; }
+    .schedule-editor { margin-bottom: 17px; padding: 19px 21px; }
+    .schedule-editor-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 13px; }
+    .schedule-editor-head h2 { margin: 0; font-size: 16px; }
+    .schedule-editor-head p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .schedule-day-select { min-width: 125px; }
+    .editor-task { display: grid; grid-template-columns: minmax(0, 1fr) 130px 150px 38px; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+    .editor-task .account-input { font-size: 12px; }
+    .editor-delete { width: 36px; height: 36px; border: 1px solid var(--line); border-radius: 9px; color: #b42335; background: #fff; font-size: 18px; }
+    .editor-delete:hover { border-color: #f3b6be; background: #fff7f8; }
+    .editor-empty { padding: 13px 0; color: var(--muted); font-size: 12px; }
+    .editor-add { display: grid; grid-template-columns: minmax(0, 1fr) 115px 145px auto; gap: 8px; margin-top: 11px; }
+    .editor-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 13px; }
+    .editor-actions .secondary-btn, .editor-actions .primary-btn, .editor-add .primary-btn { padding: 8px 12px; font-size: 12px; }
+    .install-btn, .secondary-btn, .primary-btn, .week-btn {
+      border: 1px solid var(--line); border-radius: 11px; background: #fff; color: var(--ink);
+      padding: 10px 14px; font-weight: 650; transition: .18s ease;
+    }
+    .install-btn:hover, .secondary-btn:hover, .week-btn:hover { border-color: #c9c8fb; background: #fafaff; }
+    .install-btn { display: none; align-items: center; gap: 8px; color: var(--primary); }
+    .install-btn svg { width: 16px; }
+    .welcome { margin-bottom: 24px; }
+    .eyebrow { color: var(--primary); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 5px 0 5px; font-size: clamp(25px, 5vw, 34px); letter-spacing: -1.1px; line-height: 1.2; }
+    .welcome p { margin: 0; color: var(--muted); }
+    .tabs {
+      display: flex; gap: 5px; padding: 5px; margin-bottom: 22px; width: fit-content;
+      border: 1px solid var(--line); border-radius: 13px; background: #fff;
+    }
+    .tab {
+      border: 0; border-radius: 9px; padding: 9px 15px; color: var(--muted); background: transparent;
+      font-weight: 650; white-space: nowrap;
+    }
+    .tab.active { color: var(--primary); background: var(--primary-soft); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .today-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 22px 24px 18px; }
+    .today-heading h2, .section-heading h2 { margin: 0; font-size: 19px; letter-spacing: -.4px; }
+    .today-heading p, .section-heading p { color: var(--muted); margin: 4px 0 0; font-size: 13px; }
+    .date-pill { color: var(--primary); background: var(--primary-soft); border-radius: 9px; padding: 7px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .day-progress { padding: 0 24px 19px; }
+    .progress-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--muted); font-size: 12px; }
+    .progress-label strong { color: var(--ink); }
+    .progress-track { height: 8px; overflow: hidden; border-radius: 99px; background: #eeeef5; }
+    .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #4f46e5, #837cf5); transition: width .25s; }
+    .task-list { border-top: 1px solid var(--line); }
+    .task { padding: 17px 24px; border-bottom: 1px solid var(--line); }
+    .task:last-child { border-bottom: 0; }
+    .task-main { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+    .task-check { width: 19px; height: 19px; accent-color: var(--primary); cursor: pointer; }
+    .task-title { font-weight: 700; }
+    .task.done .task-title { color: #8b8d9e; text-decoration: line-through; }
+    .task-meta { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .tag { border-radius: 7px; padding: 4px 8px; color: #62647a; background: #f3f3f8; font-size: 11px; font-weight: 650; }
+    .tag.optional { color: #9b6511; background: #fff5df; }
+    .task-fields { display: grid; grid-template-columns: minmax(115px, 170px) minmax(0, 1fr); gap: 10px; margin: 13px 0 0 34px; }
+    .field-wrap { position: relative; }
+    .field-label { display: block; margin: 0 0 5px; color: var(--muted); font-size: 11px; font-weight: 650; }
+    .task-input, .task-note {
+      width: 100%; min-height: 39px; border: 1px solid var(--line); border-radius: 9px;
+      outline: none; padding: 8px 10px; background: #fcfcfe; color: var(--ink);
+    }
+    .task-input:focus, .task-note:focus { border-color: #a5a0fa; box-shadow: 0 0 0 3px #4f46e514; }
+    .task-input { padding-right: 30px; }
+    .unit { position: absolute; right: 10px; bottom: 9px; color: var(--muted); font-size: 12px; pointer-events: none; }
+    .task-note { min-height: 39px; resize: vertical; }
+    .empty-day { padding: 28px 24px; color: var(--muted); text-align: center; }
+    .today-footer { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 24px; border-top: 1px solid var(--line); }
+    .saved-status { color: var(--muted); font-size: 12px; }
+    .primary-btn { border-color: var(--primary); color: #fff; background: var(--primary); padding: 11px 17px; }
+    .primary-btn:hover { background: var(--primary-dark); }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 17px; }
+    .week-nav { display: flex; align-items: center; gap: 9px; }
+    .week-btn { width: 38px; height: 38px; padding: 0; display: grid; place-items: center; font-size: 18px; }
+    .week-label { min-width: 142px; text-align: center; font-size: 12px; font-weight: 700; }
+    .week-list { overflow: hidden; }
+    .week-day { display: grid; grid-template-columns: minmax(110px, 1.1fr) minmax(140px, 1.4fr) minmax(130px, .9fr) 105px; align-items: center; gap: 18px; padding: 17px 21px; border-bottom: 1px solid var(--line); }
+    .week-day:last-child { border-bottom: 0; }
+    .week-day.today { background: #fafaff; }
+    .week-date { font-size: 13px; font-weight: 700; }
+    .week-date small { display: block; color: var(--muted); font-size: 11px; font-weight: 450; }
+    .week-count { color: var(--muted); font-size: 12px; }
+    .week-hours { text-align: right; font-size: 13px; font-weight: 700; }
+    .week-bar { height: 7px; margin-top: 6px; border-radius: 99px; background: #eeeef5; overflow: hidden; }
+    .week-bar span { display: block; height: 100%; border-radius: inherit; background: var(--primary); }
+    .week-legend { padding: 14px 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .report-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin-bottom: 18px; }
+    .stat-card { padding: 18px; }
+    .stat-title { color: var(--muted); font-size: 12px; font-weight: 600; }
+    .stat-value { margin-top: 7px; font-size: 27px; line-height: 1.15; font-weight: 760; letter-spacing: -.7px; }
+    .stat-unit { margin-left: 3px; color: var(--muted); font-size: 13px; font-weight: 550; letter-spacing: 0; }
+    .stat-foot { margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .report-columns { display: grid; grid-template-columns: 1.15fr .85fr; gap: 16px; }
+    .report-card { padding: 21px; }
+    .report-card h3 { margin: 0 0 14px; font-size: 15px; }
+    .activity-list, .advice-list { margin: 0; padding: 0; list-style: none; }
+    .activity-list li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .activity-list li:last-child { border: 0; }
+    .activity-name { font-weight: 600; }
+    .activity-date { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; font-weight: 450; }
+    .activity-hours { flex: none; color: var(--primary); font-weight: 700; }
+    .advice-list li { display: flex; gap: 9px; align-items: flex-start; padding: 9px 0; color: #55576b; font-size: 12px; }
+    .advice-dot { flex: none; width: 7px; height: 7px; margin-top: 6px; border-radius: 50%; background: #f0a52b; }
+    .advice-list li.good .advice-dot { background: var(--green); }
+    .report-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 18px; }
+    .report-actions p { margin: 0; color: var(--muted); font-size: 12px; }
+    .toast {
+      position: fixed; left: 50%; bottom: 22px; z-index: 5; transform: translate(-50%, 15px);
+      opacity: 0; padding: 11px 16px; border-radius: 11px; color: #fff; background: #25263a;
+      box-shadow: var(--shadow); font-size: 13px; pointer-events: none; transition: .2s;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 700px) {
+      .app { padding: 18px 15px 34px; }
+      .topbar { margin-bottom: 23px; }
+      .welcome { margin-bottom: 20px; }
+      .account-setup, .account-form { grid-template-columns: 1fr 1fr; }
+      .account-setup .primary-btn, .account-form .primary-btn, .account-form .secondary-btn { width: 100%; }
+      .schedule-editor { padding: 16px; }
+      .editor-task { grid-template-columns: minmax(0, 1fr) 100px 38px; }
+      .editor-task select { grid-column: 1 / 3; }
+      .editor-add { grid-template-columns: 1fr 1fr; }
+      .editor-add .primary-btn { grid-column: 1 / -1; }
+      .tabs { width: 100%; }
+      .tab { flex: 1; padding: 9px 8px; font-size: 13px; }
+      .today-heading { padding: 19px 17px 15px; }
+      .day-progress { padding: 0 17px 17px; }
+      .task { padding: 15px 17px; }
+      .task-fields { margin-left: 0; }
+      .today-footer { padding: 16px 17px; }
+      .week-day { grid-template-columns: minmax(90px, .9fr) minmax(95px, 1fr) 82px; gap: 10px; padding: 15px 13px; }
+      .week-day .week-bar-cell { grid-column: 1 / -1; grid-row: 2; }
+      .week-day .week-hours { grid-column: 3; grid-row: 1; }
+      .week-day .week-count { grid-column: 2; grid-row: 1; }
+      .report-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat-card { padding: 15px; }
+      .stat-value { font-size: 24px; }
+      .report-columns { grid-template-columns: 1fr; gap: 12px; }
+      .report-card { padding: 18px; }
+    }
+    @media (max-width: 390px) {
+      .app { padding-right: 11px; padding-left: 11px; }
+      .task-fields { grid-template-columns: 112px minmax(0, 1fr); gap: 8px; }
+      .week-label { min-width: 125px; }
+      .today-footer { align-items: flex-start; flex-direction: column; }
+      .today-footer .primary-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.3 4.3L19 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="brand-name">Ruang Fokus<span class="brand-sub">belajar sedikit, konsisten setiap hari</span></div>
+      </div>
+      <button class="install-btn" id="install-button" type="button" aria-label="Install aplikasi">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Install
+      </button>
+    </header>
+
+    <section class="welcome">
+      <div class="eyebrow" id="greeting">Ritme belajar kamu</div>
+      <h1>Fokus pada progres.</h1>
+      <p>Rencanakan hari ini, rayakan setiap langkah kecil.</p>
+    </section>
+
+    <section class="card account-card" aria-label="Akun dan sinkronisasi">
+      <div class="account-top">
+        <div><div class="account-title">Sinkronisasi cloud</div><div class="account-status" id="account-status">Mode lokal — progress hanya ada di perangkat ini.</div></div>
+        <button class="secondary-btn" id="sign-out" type="button" hidden>Keluar</button>
+      </div>
+      <form class="account-setup" id="config-form">
+        <input class="account-input" id="supabase-url" type="url" placeholder="Supabase Project URL" aria-label="Supabase Project URL" required>
+        <input class="account-input" id="supabase-key" type="password" placeholder="Publishable / anon key" aria-label="Supabase publishable atau anon key" required>
+        <button class="primary-btn" type="submit">Hubungkan</button>
+      </form>
+      <form class="account-form" id="auth-form" hidden>
+        <input class="account-input" id="auth-email" type="email" autocomplete="email" placeholder="Email" aria-label="Email" required>
+        <input class="account-input" id="auth-password" type="password" autocomplete="current-password" minlength="6" placeholder="Password (min. 6 karakter)" aria-label="Password" required>
+        <button class="primary-btn" id="sign-in" type="submit">Masuk</button>
+        <button class="secondary-btn" id="sign-up" type="button">Daftar</button>
+      </form>
+      <p class="account-hint" id="account-hint">Gunakan URL dan publishable/anon key dari Supabase → Project Settings → API. Jangan gunakan service_role key. Progress lokal akan digabung saat login pertama.</p>
+    </section>
+
+    <nav class="tabs" aria-label="Navigasi utama">
+      <button class="tab active" type="button" data-tab="today">Hari Ini</button>
+      <button class="tab" type="button" data-tab="week">Minggu Ini</button>
+      <button class="tab" type="button" data-tab="report">Laporan</button>
+    </nav>
+
+    <section class="panel active" id="panel-today">
+      <section class="card schedule-editor" aria-label="Edit jadwal mingguan">
+        <div class="schedule-editor-head">
+          <div><h2>Edit jadwal mingguan</h2><p>Atur tugas berulang untuk setiap hari.</p></div>
+          <select class="account-input schedule-day-select" id="editor-day" aria-label="Pilih hari untuk diedit"></select>
+        </div>
+        <div id="editor-task-list"></div>
+        <form class="editor-add" id="add-task-form">
+          <input class="account-input" id="new-task-name" type="text" maxlength="80" placeholder="Nama tugas baru" aria-label="Nama tugas baru" required>
+          <input class="account-input" id="new-task-hours" type="number" min="0" max="24" step="0.25" value="1" aria-label="Target jam tugas baru" required>
+          <select class="account-input" id="new-task-category" aria-label="Kategori tugas baru">
+            <option value="dataScience">Data Science</option>
+            <option value="english">Bahasa Inggris</option>
+            <option value="gym">Gym</option>
+            <option value="content">Konten</option>
+            <option value="planning">Planning</option>
+            <option value="other">Lainnya</option>
+          </select>
+          <button class="primary-btn" type="submit">+ Tambah</button>
+        </form>
+        <div class="editor-actions">
+          <button class="secondary-btn" id="reset-schedule" type="button">Kembalikan jadwal default</button>
+          <button class="primary-btn" id="save-schedule" type="button">Simpan jadwal</button>
+        </div>
+      </section>
+      <div class="card">
+        <div class="today-heading">
+          <div><h2>Jadwal hari ini</h2><p id="today-subtitle"></p></div>
+          <span class="date-pill" id="today-date"></span>
+        </div>
+        <div class="day-progress">
+          <div class="progress-label"><span>Progress hari ini</span><strong id="today-progress-text">0 dari 0 task</strong></div>
+          <div class="progress-track" role="progressbar" aria-label="Progress hari ini" aria-valuemin="0" aria-valuemax="100" id="today-progress-bar"><div class="progress-fill" id="today-progress-fill"></div></div>
+        </div>
+        <div class="task-list" id="today-tasks"></div>
+        <div class="today-footer">
+          <span class="saved-status" id="saved-status">Progress tersimpan otomatis di perangkat ini.</span>
+          <button class="primary-btn" id="save-today" type="button">Simpan Progress Hari Ini</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-week">
+      <div class="section-heading">
+        <div><h2>Ringkasan mingguan</h2><p>Jaga ritme, satu hari dalam satu waktu.</p></div>
+        <div class="week-nav">
+          <button class="week-btn" id="prev-week" type="button" aria-label="Minggu sebelumnya">‹</button>
+          <span class="week-label" id="week-label"></span>
+          <button class="week-btn" id="next-week" type="button" aria-label="Minggu berikutnya">›</button>
+        </div>
+      </div>
+      <div class="card week-list" id="week-days"></div>
+    </section>
+
+    <section class="panel" id="panel-report">
+      <div class="section-heading">
+        <div><h2>Laporan belajar</h2><p id="report-range"></p></div>
+      </div>
+      <div class="report-grid" id="report-stats"></div>
+      <div class="report-columns">
+        <div class="card report-card">
+          <h3>Detail aktivitas</h3>
+          <ul class="activity-list" id="activity-list"></ul>
+        </div>
+        <div class="card report-card">
+          <h3>Saran untuk kamu</h3>
+          <ul class="advice-list" id="advice-list"></ul>
+        </div>
+      </div>
+      <div class="report-actions">
+        <p id="report-storage-note">Progress lokal; hubungkan akun untuk sinkronisasi antar perangkat.</p>
+        <button class="secondary-btn" id="export-data" type="button">↓ &nbsp;Export Data</button>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const STORAGE_KEY = "ruang-fokus-progress-v1";
+      const CONFIG_KEY = "ruang-fokus-supabase-config-v1";
+      const SCHEDULE_KEY = "ruang-fokus-schedule-v1";
+      const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      const categories = {
+        dataScience: "Data Science",
+        english: "Bahasa Inggris",
+        gym: "Gym",
+        content: "Konten",
+        planning: "Planning",
+        other: "Lainnya"
+      };
+      const defaultSchedule = {
+        1: [
+          { name: "Data Science", category: "dataScience", hours: 3.5 },
+          { name: "Gym", category: "gym", hours: 1.25 }
+        ],
+        2: [
+          { name: "Data Science", category: "dataScience", hours: 3.5 },
+          { name: "Bahasa Inggris", category: "english", hours: 1 },
+          { name: "Konten AI", category: "content", hours: 1.5 }
+        ],
+        3: [
+          { name: "Data Science", category: "dataScience", hours: 3.5 },
+          { name: "Gym", category: "gym", hours: 1.25 }
+        ],
+        4: [
+          { name: "Data Science", category: "dataScience", hours: 3.5 },
+          { name: "Bahasa Inggris", category: "english", hours: 1 }
+        ],
+        5: [
+          { name: "Data Science", category: "dataScience", hours: 3 },
+          { name: "Content Creator AI", category: "content", hours: 1.5 },
+          { name: "Gym", category: "gym", hours: 0, optional: true }
+        ],
+        6: [
+          { name: "Data Science Project", category: "dataScience", hours: 3 },
+          { name: "Bahasa Inggris", category: "english", hours: 1 },
+          { name: "Gym", category: "gym", hours: 1.25 }
+        ],
+        0: [
+          { name: "Review Data Science", category: "dataScience", hours: 1.5 },
+          { name: "Gym ringan", category: "gym", hours: 0.5 },
+          { name: "Planning", category: "planning", hours: 0.5 }
+        ]
+      };
+      const $ = (selector) => document.querySelector(selector);
+      const scheduleRecord = loadSchedule(SCHEDULE_KEY);
+      let schedule = scheduleRecord.days;
+      let scheduleUpdatedAt = scheduleRecord.updatedAt;
+      let scheduleStorageKey = SCHEDULE_KEY;
+      let editorDraft = cloneSchedule(schedule);
+      let editorDay = String(new Date().getDay());
+      let editorDirty = false;
+      let storageKey = STORAGE_KEY;
+      let appData = loadData(storageKey);
+      const legacyData = appData;
+      let supabaseClient = null;
+      let activeUser = null;
+      let weekOffset = 0;
+      let deferredInstallPrompt = null;
+      let toastTimer;
+
+      function loadData(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) return {};
+          const parsed = JSON.parse(raw);
+          return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+        } catch (error) {
+          console.error("Progress tidak dapat dibaca dari localStorage.", error);
+          return {};
+        }
+      }
+
+      function cloneSchedule(days) {
+          return Object.fromEntries(Object.entries(days).map(([day, tasks]) => [day, tasks.map((task) => ({ ...task }))]));
+        }
+
+        function normalizeSchedule(candidate) {
+          const normalized = {};
+          for (let day = 0; day < 7; day++) {
+            const tasks = candidate && Array.isArray(candidate[day]) ? candidate[day] : defaultSchedule[day] || [];
+            normalized[day] = tasks.filter((task) => task && typeof task.name === "string" && task.name.trim()).map((task, index) => {
+              const hours = Number(task.hours);
+              const category = Object.hasOwn(categories, task.category) ? task.category : "other";
+              return {
+                id: typeof task.id === "string" && task.id ? task.id : `d${day}-${index}`,
+                name: task.name.trim().slice(0, 80),
+                category,
+                hours: Number.isFinite(hours) ? Math.max(0, Math.min(24, hours)) : 0,
+                ...(task.optional && category === "gym" ? { optional: true } : {})
+              };
+            });
+          }
+          return normalized;
+        }
+
+        function loadSchedule(key) {
+          try {
+            const raw = localStorage.getItem(key);
+            if (!raw) return { days: normalizeSchedule(defaultSchedule), updatedAt: "" };
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object" && parsed.days) {
+              return { days: normalizeSchedule(parsed.days), updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : "" };
+            }
+            return { days: normalizeSchedule(parsed), updatedAt: "" };
+          } catch (error) {
+            console.error("Jadwal tidak dapat dibaca dari localStorage.", error);
+            return { days: normalizeSchedule(defaultSchedule), updatedAt: "" };
+          }
+        }
+
+        function renderScheduleEditor() {
+          $("#editor-day").innerHTML = dayNames.map((name, day) => `<option value="${day}">${name}</option>`).join("");
+          $("#editor-day").value = editorDay;
+          const tasks = editorDraft[editorDay] || [];
+          $("#editor-task-list").innerHTML = tasks.length ? tasks.map((task, index) => `
+            <div class="editor-task" data-index="${index}" data-id="${safeText(task.id)}">
+              <input class="account-input editor-name" type="text" maxlength="80" value="${safeText(task.name)}" aria-label="Nama tugas ${index + 1}">
+              <input class="account-input editor-hours" type="number" min="0" max="24" step="0.25" value="${task.hours}" aria-label="Target jam tugas ${index + 1}">
+              <select class="account-input editor-category" aria-label="Kategori tugas ${index + 1}">${Object.entries(categories).map(([value, label]) => `<option value="${value}" ${task.category === value ? "selected" : ""}>${label}</option>`).join("")}</select>
+              <button class="editor-delete" type="button" aria-label="Hapus ${safeText(task.name)}">×</button>
+            </div>`).join("") : '<div class="editor-empty">Belum ada tugas pada hari ini. Tambahkan tugas di bawah.</div>';
+          $("#save-schedule").textContent = editorDirty ? "Simpan jadwal *" : "Simpan jadwal";
+        }
+
+        function readEditorRows() {
+          const rows = [...$("#editor-task-list").querySelectorAll(".editor-task")];
+          const tasks = [];
+          for (const row of rows) {
+            const nameInput = row.querySelector(".editor-name");
+            const hoursInput = row.querySelector(".editor-hours");
+            const name = nameInput.value.trim();
+            const hours = Number(hoursInput.value);
+            if (!name) {
+              nameInput.setCustomValidity("Nama tugas tidak boleh kosong.");
+              nameInput.reportValidity();
+              nameInput.setCustomValidity("");
+              return null;
+            }
+            if (hoursInput.value === "" || !Number.isFinite(hours) || hours < 0 || hours > 24) {
+              hoursInput.setCustomValidity("Masukkan target jam antara 0 dan 24.");
+              hoursInput.reportValidity();
+              hoursInput.setCustomValidity("");
+              return null;
+            }
+            tasks.push({
+              id: row.dataset.id,
+              name,
+              hours,
+              category: row.querySelector(".editor-category").value,
+              ...(editorDraft[editorDay][Number(row.dataset.index)]?.optional ? { optional: true } : {})
+            });
+          }
+          editorDraft[editorDay] = tasks;
+          return tasks;
+        }
+
+        function markEditorDirty() {
+          const tasks = readEditorRows();
+          if (tasks) {
+            editorDirty = true;
+            $("#save-schedule").textContent = "Simpan jadwal *";
+          }
+        }
+
+        async function saveSchedule() {
+          const tasks = readEditorRows();
+          if (!tasks) return;
+          schedule = normalizeSchedule(editorDraft);
+          scheduleUpdatedAt = new Date().toISOString();
+          if (!saveScheduleLocally()) return;
+          editorDirty = false;
+          renderScheduleEditor();
+          renderToday();
+          renderWeek();
+          renderReport();
+          const synced = await syncScheduleToCloud();
+          if (synced) showToast(activeUser ? "Jadwal tersimpan dan tersinkron." : "Jadwal berhasil disimpan di perangkat ini.");
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(appData));
+          $("#saved-status").textContent = activeUser ? "Tersimpan di perangkat ini; menyinkronkan..." : "Tersimpan di perangkat ini saja.";
+          return true;
+        } catch (error) {
+          console.error("Progress tidak dapat disimpan ke localStorage.", error);
+          $("#saved-status").textContent = "Gagal menyimpan. Periksa ruang penyimpanan browser.";
+          showToast("Progress gagal disimpan.");
+          return false;
+        }
+      }
+
+      function setAccountStatus(message) {
+        $("#account-status").textContent = message;
+      }
+
+      function normalizeConfig(url, key) {
+        const cleanUrl = url.trim().replace(/\/+$/, "");
+        if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(cleanUrl)) {
+          throw new Error("Project URL harus berupa https://<project-ref>.supabase.co.");
+        }
+        if (!key.trim() || /service_role|sb_secret_/i.test(key)) {
+          throw new Error("Gunakan publishable/anon key, bukan secret atau service_role key.");
+        }
+        return { url: cleanUrl, key: key.trim() };
+      }
+
+      function configureSupabase(config) {
+        if (!window.supabase || typeof window.supabase.createClient !== "function") {
+          throw new Error("Library Supabase tidak termuat. Periksa koneksi internet, lalu muat ulang halaman.");
+        }
+        supabaseClient = window.supabase.createClient(config.url, config.key);
+        $("#config-form").hidden = true;
+        $("#auth-form").hidden = false;
+        $("#account-hint").textContent = "Masuk dengan akun yang sama di setiap perangkat untuk mengakses progress cloud.";
+        setAccountStatus("Supabase terhubung. Silakan masuk atau buat akun.");
+      }
+
+      function mergeProgress(local, remoteRows) {
+        const merged = { ...local };
+        remoteRows.forEach((row) => {
+          const cloud = { tasks: row.tasks, updatedAt: row.updated_at };
+          const localDate = merged[row.progress_date];
+          const localTime = localDate && Date.parse(localDate.updatedAt || "") || 0;
+          const cloudTime = Date.parse(row.updated_at || "") || 0;
+          if (!localDate || cloudTime >= localTime) merged[row.progress_date] = cloud;
+        });
+        return merged;
+      }
+
+      async function syncCloudProgress(user, localSnapshot) {
+        const { data, error } = await supabaseClient
+          .from("study_progress")
+          .select("progress_date,tasks,updated_at")
+          .eq("user_id", user.id);
+        if (error) throw error;
+
+        appData = mergeProgress(localSnapshot, data || []);
+        storageKey = `${STORAGE_KEY}:${user.id}`;
+        saveData();
+
+        const rows = Object.entries(appData).map(([date, entry]) => ({
+          user_id: user.id,
+          progress_date: date,
+          tasks: entry.tasks,
+          updated_at: entry.updatedAt || new Date().toISOString()
+        }));
+        if (rows.length) {
+          const { error: saveError } = await supabaseClient
+            .from("study_progress")
+            .upsert(rows, { onConflict: "user_id,progress_date" });
+          if (saveError) throw saveError;
+        }
+        setAccountStatus(`Tersinkron sebagai ${user.email}.`);
+        $("#saved-status").textContent = "Progress tersimpan dan tersinkron ke Supabase.";
+        renderToday();
+        renderWeek();
+        renderReport();
+      }
+
+      async function syncCloudSchedule(user, localDays, localTimestamp) {
+        const { data, error } = await supabaseClient
+          .from("study_schedule")
+          .select("schedule,updated_at")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (error) throw error;
+
+        const accountScheduleKey = `${SCHEDULE_KEY}:${user.id}`;
+        const accountLocal = loadSchedule(accountScheduleKey);
+        const localTime = Date.parse(accountLocal.updatedAt || localTimestamp || "") || 0;
+        const cloudTime = data ? Date.parse(data.updated_at || "") || 0 : 0;
+        if (data && cloudTime >= localTime) {
+          schedule = normalizeSchedule(data.schedule);
+          scheduleUpdatedAt = data.updated_at || "";
+        } else {
+          schedule = normalizeSchedule(accountLocal.updatedAt ? accountLocal.days : localDays);
+          scheduleUpdatedAt = accountLocal.updatedAt || localTimestamp || new Date().toISOString();
+          const { error: saveError } = await supabaseClient.from("study_schedule").upsert({
+            user_id: user.id,
+            schedule,
+            updated_at: scheduleUpdatedAt
+          }, { onConflict: "user_id" });
+          if (saveError) throw saveError;
+        }
+
+        scheduleStorageKey = accountScheduleKey;
+        saveScheduleLocally();
+        editorDraft = cloneSchedule(schedule);
+        editorDirty = false;
+        renderScheduleEditor();
+        renderToday();
+        renderWeek();
+        renderReport();
+      }
+
+      function saveScheduleLocally() {
+        try {
+          localStorage.setItem(scheduleStorageKey, JSON.stringify({ days: schedule, updatedAt: scheduleUpdatedAt }));
+          return true;
+        } catch (error) {
+          console.error("Jadwal gagal disimpan ke localStorage.", error);
+          showToast("Jadwal gagal disimpan di perangkat ini.");
+          return false;
+        }
+      }
+
+      async function syncScheduleToCloud() {
+        if (!activeUser || !supabaseClient) return true;
+        const { error } = await supabaseClient.from("study_schedule").upsert({
+          user_id: activeUser.id,
+          schedule,
+          updated_at: scheduleUpdatedAt
+        }, { onConflict: "user_id" });
+        if (error) {
+          console.error("Jadwal gagal disinkronkan ke Supabase.", error);
+          setAccountStatus("Jadwal tersimpan lokal, tetapi gagal sinkron ke cloud.");
+          showToast("Jadwal lokal tersimpan, tetapi sinkronisasi cloud gagal.");
+          return false;
+        }
+        setAccountStatus(`Jadwal tersinkron sebagai ${activeUser.email}.`);
+        return true;
+      }
+
+      async function syncDayToCloud(date) {
+        if (!activeUser || !supabaseClient || !appData[date]) return;
+        const { error } = await supabaseClient.from("study_progress").upsert({
+          user_id: activeUser.id,
+          progress_date: date,
+          tasks: appData[date].tasks,
+          updated_at: appData[date].updatedAt
+        }, { onConflict: "user_id,progress_date" });
+        if (error) {
+          console.error("Progress gagal disinkronkan ke Supabase.", error);
+          $("#saved-status").textContent = "Tersimpan lokal, tetapi gagal sinkron ke cloud.";
+          showToast("Gagal sinkron ke cloud. Periksa koneksi dan aturan database.");
+          return false;
+        }
+        $("#saved-status").textContent = "Progress tersimpan dan tersinkron ke Supabase.";
+        return true;
+      }
+
+      function dateKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+
+      function mondayOf(date) {
+        const monday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const offset = (monday.getDay() + 6) % 7;
+        monday.setDate(monday.getDate() - offset);
+        return monday;
+      }
+
+      function formatDate(date, includeYear) {
+        return `${date.getDate()} ${monthNames[date.getMonth()]}${includeYear ? ` ${date.getFullYear()}` : ""}`;
+      }
+
+      function safeText(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[char]);
+      }
+
+      function dayTasks(date) {
+        const defaults = schedule[date.getDay()] || [];
+        const stored = appData[dateKey(date)];
+        return defaults.map((task) => {
+          const savedTasks = stored && Array.isArray(stored.tasks) ? stored.tasks : [];
+          const saved = savedTasks.find((entry) => entry.taskId === task.id)
+            || savedTasks.find((entry) => entry.name === task.name && entry.category === task.category);
+          return {
+            ...task,
+            done: Boolean(saved && saved.done),
+            actual: saved && Number.isFinite(Number(saved.actual)) ? Number(saved.actual) : task.hours,
+            note: saved && typeof saved.note === "string" ? saved.note : ""
+          };
+        });
+      }
+
+      function hoursFor(task) {
+        const hours = Number(task.actual);
+        return Number.isFinite(hours) && hours >= 0 ? hours : 0;
+      }
+
+      function renderToday() {
+        const today = new Date();
+        const tasks = dayTasks(today);
+        const requiredTasks = tasks.filter((task) => !task.optional);
+        const completed = requiredTasks.filter((task) => task.done).length;
+        $("#today-date").textContent = `${dayNames[today.getDay()]}, ${formatDate(today)}`;
+        $("#today-subtitle").textContent = tasks.length ? "Selesaikan sesuai kemampuanmu hari ini." : "Nikmati waktu istirahatmu hari ini.";
+        $("#today-progress-text").textContent = `${completed} dari ${requiredTasks.length} task selesai`;
+        const percent = requiredTasks.length ? Math.round((completed / requiredTasks.length) * 100) : 0;
+        $("#today-progress-fill").style.width = `${percent}%`;
+        $("#today-progress-bar").setAttribute("aria-valuenow", String(percent));
+
+        if (!tasks.length) {
+          $("#today-tasks").innerHTML = '<div class="empty-day">Tidak ada jadwal hari ini. Waktunya istirahat atau lakukan review ringan. 🌿</div>';
+          return;
+        }
+        $("#today-tasks").innerHTML = tasks.map((task, index) => `
+          <article class="task${task.done ? " done" : ""}" data-task="${index}">
+            <div class="task-main">
+              <input class="task-check" type="checkbox" aria-label="Tandai ${safeText(task.name)} selesai" ${task.done ? "checked" : ""}>
+              <div><div class="task-title">${safeText(task.name)}</div><div class="task-meta">Target ${task.hours ? `${task.hours} jam` : "fleksibel"}</div></div>
+              ${task.optional ? '<span class="tag optional">Opsional</span>' : `<span class="tag">${task.category === "gym" ? "Kesehatan" : task.category === "planning" ? "Rencana" : "Belajar"}</span>`}
+            </div>
+            <div class="task-fields">
+              <label class="field-wrap"><span class="field-label">Jam aktual</span><input class="task-input" type="number" min="0" max="24" step="0.25" value="${safeText(task.actual)}" aria-label="Jam aktual ${safeText(task.name)}"><span class="unit">jam</span></label>
+              <label><span class="field-label">Catatan singkat</span><input class="task-note" type="text" maxlength="180" value="${safeText(task.note)}" placeholder="Apa yang kamu pelajari?" aria-label="Catatan ${safeText(task.name)}"></label>
+            </div>
+          </article>`).join("");
+        $("#today-tasks").querySelectorAll(".task").forEach((element) => {
+          element.querySelector(".task-check").addEventListener("change", () => {
+            element.classList.toggle("done", element.querySelector(".task-check").checked);
+            updateTodayProgress();
+          });
+        });
+      }
+
+      function updateTodayProgress() {
+        const requiredTasks = [...$("#today-tasks").querySelectorAll(".task")].filter((task) => !schedule[new Date().getDay()][Number(task.dataset.task)].optional);
+        const completed = requiredTasks.filter((task) => task.querySelector(".task-check").checked).length;
+        const percent = requiredTasks.length ? Math.round((completed / requiredTasks.length) * 100) : 0;
+        $("#today-progress-text").textContent = `${completed} dari ${requiredTasks.length} task selesai`;
+        $("#today-progress-fill").style.width = `${percent}%`;
+        $("#today-progress-bar").setAttribute("aria-valuenow", String(percent));
+      }
+
+      function collectToday() {
+        return [...$("#today-tasks").querySelectorAll(".task")].map((element) => {
+          const index = Number(element.dataset.task);
+          const task = schedule[new Date().getDay()][index];
+          const input = element.querySelector(".task-input");
+          const rawHours = Number(input.value);
+          const actual = input.value === "" ? 0 : rawHours;
+          if (!Number.isFinite(actual) || actual < 0 || actual > 24) {
+            input.setCustomValidity("Masukkan angka jam antara 0 dan 24.");
+            input.reportValidity();
+            input.setCustomValidity("");
+            return null;
+          }
+          return {
+            taskId: task.id,
+            name: task.name,
+            category: task.category,
+            planned: task.hours,
+            done: element.querySelector(".task-check").checked,
+            actual,
+            note: element.querySelector(".task-note").value.trim()
+          };
+        });
+      }
+
+      function persistToday(showMessage) {
+        const tasks = collectToday();
+        if (tasks.some((task) => task === null)) return false;
+        const key = dateKey(new Date());
+        appData[key] = { tasks, updatedAt: new Date().toISOString() };
+        if (!saveData()) return false;
+        if (activeUser) void syncDayToCloud(key);
+        if (showMessage) showToast("Progress hari ini berhasil disimpan.");
+        renderWeek();
+        renderReport();
+        return true;
+      }
+
+      function getDaySummary(date) {
+        const stored = appData[dateKey(date)];
+        const required = (schedule[date.getDay()] || []).filter((task) => !(task.category === "gym" && task.hours === 0));
+        if (!stored || !Array.isArray(stored.tasks)) return { done: 0, total: required.length, hours: 0 };
+        const tasks = stored.tasks.filter((task) => !(task.category === "gym" && task.planned === 0));
+        return {
+          done: tasks.filter((task) => task.done).length,
+          total: required.length,
+          hours: tasks.reduce((sum, task) => sum + hoursFor(task), 0)
+        };
+      }
+
+      function renderWeek() {
+        const monday = mondayOf(new Date());
+        monday.setDate(monday.getDate() + weekOffset * 7);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        $("#week-label").textContent = `${monday.getDate()} ${monthNames[monday.getMonth()].slice(0, 3)} – ${sunday.getDate()} ${monthNames[sunday.getMonth()].slice(0, 3)}`;
+        const todayKey = dateKey(new Date());
+        $("#week-days").innerHTML = Array.from({ length: 7 }, (_, index) => {
+          const date = new Date(monday);
+          date.setDate(monday.getDate() + index);
+          const summary = getDaySummary(date);
+          const percent = summary.total ? Math.round(summary.done / summary.total * 100) : 0;
+          const isToday = dateKey(date) === todayKey;
+          return `<div class="week-day${isToday ? " today" : ""}">
+            <div class="week-date">${dayNames[date.getDay()]}${isToday ? " · Hari ini" : ""}<small>${formatDate(date)}</small></div>
+            <div class="week-count">${summary.done} / ${summary.total} task selesai</div>
+            <div class="week-hours">${summary.hours.toLocaleString("id-ID", { maximumFractionDigits: 2 })} jam</div>
+            <div class="week-bar-cell"><div class="week-bar" aria-label="Progress ${dayNames[date.getDay()]}"><span style="width:${percent}%"></span></div></div>
+          </div>`;
+        }).join("") + '<div class="week-legend">Total jam dihitung dari jam aktual yang tersimpan. Progress task dihitung dari jadwal harian.</div>';
+      }
+
+      function summarizeWeek(monday) {
+        const totals = { dataScience: 0, english: 0, gymDays: new Set(), completed: 0, planned: 0, activity: [] };
+        for (let index = 0; index < 7; index++) {
+          const date = new Date(monday);
+          date.setDate(monday.getDate() + index);
+          totals.planned += (schedule[date.getDay()] || []).filter((task) => !(task.category === "gym" && task.hours === 0)).length;
+          const stored = appData[dateKey(date)];
+          if (!stored || !Array.isArray(stored.tasks)) continue;
+          stored.tasks.forEach((task) => {
+            const hours = hoursFor(task);
+            if (task.done && !(task.category === "gym" && task.planned === 0)) totals.completed++;
+            if (task.category === "dataScience") totals.dataScience += hours;
+            if (task.category === "english") totals.english += hours;
+            if (task.category === "gym" && (task.done || hours > 0)) totals.gymDays.add(dateKey(date));
+            if (hours > 0 || task.done || task.note) {
+              totals.activity.push({ name: task.name, date, hours, done: Boolean(task.done), note: task.note || "" });
+            }
+          });
+        }
+        totals.completion = totals.planned ? Math.round(totals.completed / totals.planned * 100) : 0;
+        totals.gymDays = totals.gymDays.size;
+        return totals;
+      }
+
+      function renderReport() {
+        const monday = mondayOf(new Date());
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        const report = summarizeWeek(monday);
+        $("#report-storage-note").textContent = activeUser
+          ? "Progress disinkronkan ke akun Supabase kamu."
+          : "Progress lokal; hubungkan akun untuk sinkronisasi antar perangkat.";
+        $("#report-range").textContent = `${formatDate(monday)} – ${formatDate(sunday, true)}`;
+        const stats = [
+          { title: "Data Science", value: report.dataScience.toLocaleString("id-ID", { maximumFractionDigits: 2 }), unit: "jam", foot: "Termasuk project & review" },
+          { title: "Bahasa Inggris", value: report.english.toLocaleString("id-ID", { maximumFractionDigits: 2 }), unit: "jam", foot: "Total minggu ini" },
+          { title: "Hari Gym", value: report.gymDays, unit: "hari", foot: "Termasuk gym ringan" },
+          { title: "Completion rate", value: report.completion, unit: "%", foot: `${report.completed} dari ${report.planned} task` }
+        ];
+        $("#report-stats").innerHTML = stats.map((stat) => `<div class="card stat-card"><div class="stat-title">${stat.title}</div><div class="stat-value">${stat.value}<span class="stat-unit">${stat.unit}</span></div><div class="stat-foot">${stat.foot}</div></div>`).join("");
+
+        const activity = report.activity.sort((a, b) => b.date - a.date);
+        $("#activity-list").innerHTML = activity.length
+          ? activity.slice(0, 10).map((item) => `<li><span class="activity-name">${safeText(item.name)}${item.note ? `<small class="activity-date">${safeText(item.note)}</small>` : `<small class="activity-date">${dayNames[item.date.getDay()]}, ${formatDate(item.date)}</small>`}</span><span class="activity-hours">${item.hours.toLocaleString("id-ID", { maximumFractionDigits: 2 })} jam${item.done ? " ✓" : ""}</span></li>`).join("")
+          : '<li style="color:var(--muted)">Belum ada aktivitas tersimpan minggu ini. Mulai dengan mencatat progress hari ini.</li>';
+
+        const advice = [];
+        if (report.english < 3) advice.push({ good: false, text: "Coba sisihkan waktu untuk Bahasa Inggris. Target minggu ini minimal 3 jam." });
+        else advice.push({ good: true, text: "Target Bahasa Inggris minimal 3 jam tercapai. Pertahankan konsistensinya!" });
+        if (report.dataScience < 8) advice.push({ good: false, text: "Progress Data Science masih di bawah 8 jam. Coba pecah materi menjadi sesi singkat." });
+        else advice.push({ good: true, text: "Kamu sudah mengumpulkan lebih dari 8 jam Data Science. Kerja bagus!" });
+        if (report.completion < 60) advice.push({ good: false, text: "Completion rate masih bisa ditingkatkan. Pilih satu task utama untuk diselesaikan besok." });
+        else advice.push({ good: true, text: "Completion rate kamu sudah 60% atau lebih. Terus jaga ritme yang realistis." });
+        $("#advice-list").innerHTML = advice.map((item) => `<li class="${item.good ? "good" : ""}"><span class="advice-dot"></span><span>${item.text}</span></li>`).join("");
+      }
+
+      function exportData() {
+        try {
+          const payload = {
+            app: "Ruang Fokus",
+            exportedAt: new Date().toISOString(),
+            version: 1,
+            progress: appData
+          };
+          const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `ruang-fokus-${dateKey(new Date())}.json`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+          showToast("Data berhasil diekspor.");
+        } catch (error) {
+          console.error("Data gagal diekspor.", error);
+          showToast("Data gagal diekspor.");
+        }
+      }
+
+      async function activateAccount(user) {
+        activeUser = user;
+        const userStorageKey = `${STORAGE_KEY}:${user.id}`;
+        const accountData = loadData(userStorageKey);
+        const hasMigrated = localStorage.getItem(`ruang-fokus-migrated:${user.id}`) === "yes";
+        const localSnapshot = hasMigrated ? accountData : { ...legacyData, ...accountData };
+        const localScheduleSnapshot = cloneSchedule(schedule);
+        const localScheduleTimestamp = scheduleUpdatedAt;
+        storageKey = userStorageKey;
+        setAccountStatus(`Mengambil progress untuk ${user.email}...`);
+        $("#auth-form").hidden = true;
+        $("#sign-out").hidden = false;
+        try {
+          await syncCloudProgress(user, localSnapshot);
+          await syncCloudSchedule(user, localScheduleSnapshot, localScheduleTimestamp);
+          localStorage.setItem(`ruang-fokus-migrated:${user.id}`, "yes");
+        } catch (error) {
+          console.error("Data gagal dimuat atau disinkronkan dari Supabase.", error);
+          setAccountStatus("Login berhasil, tetapi sinkronisasi gagal.");
+          $("#saved-status").textContent = "Data lokal tersedia; cloud belum tersinkron.";
+          showToast(error.message || "Gagal memuat data cloud. Pastikan tabel dan kebijakan akses sudah dibuat.");
+          renderToday();
+          renderWeek();
+          renderReport();
+        }
+      }
+
+      async function initializeCloud() {
+          let config;
+          try {
+            config = JSON.parse(localStorage.getItem(CONFIG_KEY) || "null");
+          } catch (error) {
+            console.error("Konfigurasi Supabase tersimpan tidak valid.", error);
+          }
+          if (!config) return;
+          $("#supabase-url").value = config.url || "";
+          $("#supabase-key").value = config.key || "";
+          try {
+            configureSupabase(normalizeConfig(config.url || "", config.key || ""));
+            const { data, error } = await supabaseClient.auth.getSession();
+            if (error) throw error;
+            if (data.session) await activateAccount(data.session.user);
+          } catch (error) {
+            console.error("Supabase gagal diinisialisasi.", error);
+            setAccountStatus(error.message || "Gagal menghubungkan Supabase.");
+            $("#config-form").hidden = false;
+            $("#auth-form").hidden = true;
+        }
+      }
+
+      function showToast(message) {
+        const toast = $("#toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+      }
+
+      $("#editor-day").addEventListener("change", () => {
+        if (!readEditorRows()) return;
+        editorDay = $("#editor-day").value;
+        renderScheduleEditor();
+      });
+      $("#editor-task-list").addEventListener("input", markEditorDirty);
+      $("#editor-task-list").addEventListener("change", markEditorDirty);
+      $("#editor-task-list").addEventListener("click", (event) => {
+        const button = event.target.closest(".editor-delete");
+        if (!button || !readEditorRows()) return;
+        editorDraft[editorDay].splice(Number(button.closest(".editor-task").dataset.index), 1);
+        editorDirty = true;
+        renderScheduleEditor();
+      });
+      $("#add-task-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (!readEditorRows()) return;
+        const name = $("#new-task-name").value.trim();
+        const hours = Number($("#new-task-hours").value);
+        if (!name) {
+          $("#new-task-name").setCustomValidity("Nama tugas tidak boleh kosong.");
+          $("#new-task-name").reportValidity();
+          $("#new-task-name").setCustomValidity("");
+          return;
+        }
+        if (!Number.isFinite(hours) || hours < 0 || hours > 24) return;
+        editorDraft[editorDay].push({
+          id: `task-${globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`}`,
+          name,
+          hours,
+          category: $("#new-task-category").value
+        });
+        editorDirty = true;
+        $("#new-task-name").value = "";
+        renderScheduleEditor();
+        $("#new-task-name").focus();
+      });
+      $("#save-schedule").addEventListener("click", () => { void saveSchedule(); });
+      $("#reset-schedule").addEventListener("click", () => {
+        if (!confirm("Kembalikan jadwal semua hari ke pengaturan awal?")) return;
+        editorDraft = normalizeSchedule(defaultSchedule);
+        editorDirty = true;
+        renderScheduleEditor();
+        showToast("Jadwal default dimuat. Tekan Simpan jadwal untuk menerapkan.");
+      });
+
+      $("#config-form").addEventListener("submit", (event) => {
+        event.preventDefault();
+        try {
+          const config = normalizeConfig($("#supabase-url").value, $("#supabase-key").value);
+          localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+          configureSupabase(config);
+          showToast("Supabase berhasil dihubungkan.");
+        } catch (error) {
+          setAccountStatus(error.message || "Konfigurasi tidak valid.");
+        }
+      });
+
+      $("#auth-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const button = $("#sign-in");
+        button.disabled = true;
+        try {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: $("#auth-email").value.trim(),
+            password: $("#auth-password").value
+          });
+          if (error) throw error;
+          await activateAccount(data.user);
+        } catch (error) {
+          console.error("Login Supabase gagal.", error);
+          setAccountStatus(error.message || "Login gagal.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      $("#sign-up").addEventListener("click", async () => {
+        const email = $("#auth-email").value.trim();
+        const password = $("#auth-password").value;
+        if (!$("#auth-email").reportValidity()) return;
+        if (!$("#auth-password").reportValidity()) return;
+        $("#sign-up").disabled = true;
+        try {
+          const { data, error } = await supabaseClient.auth.signUp({ email, password });
+          if (error) throw error;
+          if (data.session && data.user) {
+            await activateAccount(data.user);
+          } else {
+            setAccountStatus("Akun dibuat. Periksa email untuk konfirmasi, lalu masuk.");
+          }
+        } catch (error) {
+          console.error("Pendaftaran Supabase gagal.", error);
+          setAccountStatus(error.message || "Pendaftaran gagal.");
+        } finally {
+          $("#sign-up").disabled = false;
+        }
+      });
+
+      $("#sign-out").addEventListener("click", async () => {
+        $("#sign-out").disabled = true;
+        try {
+          const { error } = await supabaseClient.auth.signOut();
+          if (error) throw error;
+          activeUser = null;
+          storageKey = STORAGE_KEY;
+          appData = loadData(STORAGE_KEY);
+          const localSchedule = loadSchedule(SCHEDULE_KEY);
+          scheduleStorageKey = SCHEDULE_KEY;
+          schedule = localSchedule.days;
+          scheduleUpdatedAt = localSchedule.updatedAt;
+          editorDraft = cloneSchedule(schedule);
+          editorDirty = false;
+          $("#auth-form").hidden = false;
+          $("#sign-out").hidden = true;
+          setAccountStatus("Keluar. Progress cloud tetap aman di akunmu.");
+          $("#saved-status").textContent = "Masuk untuk memuat progress cloud.";
+          renderScheduleEditor();
+          renderToday();
+          renderWeek();
+          renderReport();
+        } catch (error) {
+          console.error("Logout Supabase gagal.", error);
+          setAccountStatus(error.message || "Gagal keluar dari akun.");
+        } finally {
+          $("#sign-out").disabled = false;
+        }
+      });
+
+      document.querySelectorAll(".tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (button.dataset.tab !== "today") persistToday(false);
+          document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab === button));
+          document.querySelectorAll(".panel").forEach((panel) => panel.classList.toggle("active", panel.id === `panel-${button.dataset.tab}`));
+          if (button.dataset.tab === "week") renderWeek();
+          if (button.dataset.tab === "report") renderReport();
+        });
+      });
+      $("#save-today").addEventListener("click", () => persistToday(true));
+      $("#prev-week").addEventListener("click", () => { weekOffset--; renderWeek(); });
+      $("#next-week").addEventListener("click", () => { weekOffset++; renderWeek(); });
+      $("#export-data").addEventListener("click", exportData);
+      window.addEventListener("beforeinstallprompt", (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        $("#install-button").style.display = "inline-flex";
+      });
+      $("#install-button").addEventListener("click", async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        $("#install-button").style.display = "none";
+      });
+
+      renderToday();
+      renderScheduleEditor();
+      renderWeek();
+      renderReport();
+      void initializeCloud();
+    })();
+  </script>
+</body>
+</html>
